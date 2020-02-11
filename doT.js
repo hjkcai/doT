@@ -7,7 +7,7 @@
 
 	var doT = {
 		name: "doT",
-		version: "1.1.1",
+		version: "1.1.1-hjkcai.1",
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
@@ -24,6 +24,7 @@
 			selfcontained: false,
 			doNotSkipEncoded: false
 		},
+		compileRaw: undefined,
 		template: undefined, //fn, compile template
 		compile:  undefined, //fn, for express
 		log: true
@@ -89,7 +90,7 @@
 		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 	}
 
-	doT.template = function(tmpl, c, def) {
+	doT.compileRaw = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
@@ -129,6 +130,13 @@
 				+ doT.encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
 				+ str;
 		}
+
+		return str;
+	};
+
+	doT.template = function(tmpl, c, def) {
+		c = c || doT.templateSettings;
+		var str = doT.compileRaw(tmpl, c, def);
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {
